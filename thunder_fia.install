@@ -6,9 +6,9 @@
  */
 
 /**
- * Implements hook_uninstall().
+ * Remove fb_instant_articles 1.x config.
  */
-function thunder_fia_uninstall() {
+function thunder_fia_update_8201() {
 
   /** @var \Drupal\Core\Config\ConfigFactoryInterface $configFactory */
   $configFactory = \Drupal::configFactory();
