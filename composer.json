@@ -27,6 +27,6 @@
         }
     ],
     "require": {
-        "drupal/fb_instant_articles": "^1.0"
+        "drupal/fb_instant_articles": "^2.2"
     }
 }
