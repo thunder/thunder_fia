@@ -35,3 +35,46 @@ function thunder_fia_uninstall() {
     }
   }
 }
+
+/**
+ * Implements hook_requirements().
+ */
+function thunder_fia_requirements($phase) {
+  $requirements = [];
+
+  if ($phase === 'install') {
+    $module_handler = \Drupal::moduleHandler();
+
+    if (!$module_handler->moduleExists('thunder_article')) {
+      $requirements['thunder_fia_enable_thunder_article'] = [
+        'title' => t('Module hunder_article missing'),
+        'description' => t('The thunder facebook integration cannot be installed without enabling thunder_article module provided by the  <a href=":url">thunder distribution</a>.', [
+          ':url' => 'https://drupal.org/project/thunder',
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+    if (!$module_handler->moduleExists('thunder_media')) {
+      $requirements['thunder_fia_enable_thunder_media'] = [
+        'title' => t('Module thunder_media missing'),
+        'description' => t('The thunder facebook integration cannot be installed without enabling thunder_media module provided by the  <a href=":url">thunder distribution</a>.', [
+          ':url' => 'https://drupal.org/project/thunder',
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+    if (!$module_handler->moduleExists('thunder_paragraphs')) {
+      $requirements['thunder_fia_enable_thunder_paragraphs'] = [
+        'title' => t('Module thunder_paragraphs missing'),
+        'description' => t('The thunder facebook integration cannot be installed without enabling thunder_paragraphs module provided by the  <a href=":url">thunder distribution</a>.', [
+          ':url' => 'https://drupal.org/project/thunder',
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+  }
+
+  return $requirements;
+}
