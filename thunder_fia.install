@@ -52,6 +52,15 @@ function thunder_fia_update_8201() {
 }
 
 /**
+ * Enable fb_instant_articles_views module and
+ * default config provided by fb_instant_articles.
+ */
+function thunder_fia_update_8202() {
+  \Drupal::service('module_installer')->install(['fb_instant_articles_views']);
+  \Drupal::service('config.installer')->installDefaultConfig('module', 'fb_instant_articles');
+}
+
+/**
  * Implements hook_requirements().
  */
 function thunder_fia_requirements($phase) {
