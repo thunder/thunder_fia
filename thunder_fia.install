@@ -15,6 +15,10 @@ function thunder_fia_update_dependencies() {
   // configuration is already removed.
   $dependencies['media_entity'][8201]['thunder_fia'] = 8201;
 
+  // Ensure that media_entity_update_8201() has run before importing default
+  // config.
+  $dependencies['thunder_fia'][8202]['media_entity'] = 8201;
+
   return $dependencies;
 }
 
@@ -58,6 +62,7 @@ function thunder_fia_update_8201() {
 function thunder_fia_update_8202() {
   \Drupal::service('module_installer')->install(['fb_instant_articles_views']);
   \Drupal::service('config.installer')->installDefaultConfig('module', 'fb_instant_articles');
+  \Drupal::service('config.installer')->installDefaultConfig('module', 'thunder_fia');
 }
 
 /**
