@@ -6,6 +6,19 @@
  */
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function thunder_fia_update_dependencies() {
+  $dependencies = [];
+
+  // Ensure that thunder_fia_update_8201() before the media update, so that
+  // configuration is already removed.
+  $dependencies['media_entity'][8201]['thunder_fia'] = 8201;
+
+  return $dependencies;
+}
+
+/**
  * Remove fb_instant_articles 1.x config.
  */
 function thunder_fia_update_8201() {
@@ -22,15 +35,17 @@ function thunder_fia_update_8201() {
     'core.entity_view_display.paragraph.gallery.facebook_instant_articles_rss',
     'core.entity_view_display.paragraph.image.facebook_instant_articles_rss',
     'core.entity_view_display.paragraph.video.facebook_instant_articles_rss',
+    'core.entity_view_mode.node.fb_instant_articles_rss', // Provided by fb_instant_articles 1.x.
     'core.entity_view_mode.media.facebook_instant_articles_rss',
     'core.entity_view_mode.paragraph.facebook_instant_articles_rss',
+    'views.view.fb_instant_articles', // Provided by fb_instant_articles 1.x.
   ];
 
   foreach ($configNames as $configName) {
-    try {
-      $configFactory->getEditable($configName)->delete();
+    if (empty($configFactory->get($configName)->getRawData())) {
+      continue;
     }
-    catch (\Exception $e) {
+    if (!$configFactory->getEditable($configName)->delete()) {
       $logger->warning(sprintf('Unable to uninstall config: %s.', $configName));
     }
   }
