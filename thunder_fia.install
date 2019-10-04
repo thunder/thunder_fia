@@ -10,14 +10,21 @@
  */
 function thunder_fia_update_dependencies() {
   $dependencies = [];
+  $updates = update_get_update_list();
 
   // Ensure that thunder_fia_update_8201() before the media update, so that
   // configuration is already removed.
   $dependencies['media_entity'][8201]['thunder_fia'] = 8201;
 
+  // Ensure that thunder_fia_update_8201() before the thunder_updater update,
+  // so that configuration is already removed.
+  $dependencies['thunder_updater'][8001]['thunder_fia'] = 8201;
+
   // Ensure that media_entity_update_8201() has run before importing default
   // config.
-  $dependencies['thunder_fia'][8202]['media_entity'] = 8201;
+  if (isset($updates['media_entity']['pending'][8201])) {
+    $dependencies['thunder_fia'][8202]['media_entity'] = 8201;
+  }
 
   return $dependencies;
 }
