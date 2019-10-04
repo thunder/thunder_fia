@@ -31,7 +31,7 @@
     },
     "extra": {
         "patches": {
-            "drupal/scheduler": {
+            "drupal/fb_instant_articles": {
                 "Enable serialization module on update": "https://www.drupal.org/files/issues/2019-10-04/3085768.patch"
             }
         }
