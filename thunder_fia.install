@@ -6,65 +6,15 @@
  */
 
 /**
- * Implements hook_update_dependencies().
- */
-function thunder_fia_update_dependencies() {
-  $dependencies = [];
-  $updates = update_get_update_list();
-
-  // Ensure that thunder_fia_update_8201() before the media update, so that
-  // configuration is already removed.
-  $dependencies['media_entity'][8201]['thunder_fia'] = 8201;
-
-  // Ensure that thunder_fia_update_8201() before the thunder_updater update,
-  // so that configuration is already removed.
-  $dependencies['thunder_updater'][8001]['thunder_fia'] = 8201;
-
-  // Ensure that media_entity_update_8201() has run before importing default
-  // config.
-  if (isset($updates['media_entity']['pending'][8201])) {
-    $dependencies['thunder_fia'][8202]['media_entity'] = 8201;
-  }
-
-  return $dependencies;
-}
-
-/**
- * Remove fb_instant_articles 1.x config.
+ * Removed update code.
  */
 function thunder_fia_update_8201() {
-
-  /** @var \Drupal\Core\Config\ConfigFactoryInterface $configFactory */
-  $configFactory = \Drupal::configFactory();
-  $logger = \Drupal::logger('thunder_fia');
-
-  $configNames = [
-    'core.entity_view_display.media.gallery.facebook_instant_articles_rss',
-    'core.entity_view_display.media.image.facebook_instant_articles_rss',
-    'core.entity_view_display.media.video.facebook_instant_articles_rss',
-    'core.entity_view_display.node.article.fb_instant_articles_rss',
-    'core.entity_view_display.paragraph.gallery.facebook_instant_articles_rss',
-    'core.entity_view_display.paragraph.image.facebook_instant_articles_rss',
-    'core.entity_view_display.paragraph.video.facebook_instant_articles_rss',
-    'core.entity_view_mode.node.fb_instant_articles_rss', // Provided by fb_instant_articles 1.x.
-    'core.entity_view_mode.media.facebook_instant_articles_rss',
-    'core.entity_view_mode.paragraph.facebook_instant_articles_rss',
-    'views.view.fb_instant_articles', // Provided by fb_instant_articles 1.x.
-  ];
-
-  foreach ($configNames as $configName) {
-    if (empty($configFactory->get($configName)->getRawData())) {
-      continue;
-    }
-    if (!$configFactory->getEditable($configName)->delete()) {
-      $logger->warning(sprintf('Unable to uninstall config: %s.', $configName));
-    }
-  }
+  // fb_instant_articles 1.x config was removed in this hook.
+  // We chose not do that.
 }
 
 /**
- * Enable fb_instant_articles_views module and
- * default config provided by fb_instant_articles.
+ * Install fb_instant_articles default config and _views submodule.
  */
 function thunder_fia_update_8202() {
   \Drupal::service('module_installer')->install(['fb_instant_articles_views']);
@@ -77,6 +27,33 @@ function thunder_fia_update_8202() {
  */
 function thunder_fia_requirements($phase) {
   $requirements = [];
+
+  if ($phase === 'update') {
+    $updates = update_get_update_list();
+
+    // When update to fb_instant_articles 2.x is pending, parse config for
+    // now missing 1.x plugins.
+    if (isset($updates['fb_instant_articles']['pending'][8201])) {
+      $relevant_config = [];
+      $config_factory = \Drupal::configFactory();
+      foreach ($config_factory->listAll('views.view.') as $name) {
+        $data = $config_factory->getEditable($name)->getRawData();
+        foreach ($data['display'] as $display_plugin) {
+          if (!empty($display_plugin['display_options']['row']['type']) && $display_plugin['display_options']['row']['type'] === 'fiafields') {
+            $relevant_config[$name] = $name;
+          }
+        }
+      }
+
+      if (!empty($relevant_config)) {
+        $requirements['thunder_fia']['title'] = t('Thunder facebook instant articles update');
+        $requirements['thunder_fia']['value'] = t('Incompatible configuration');
+        $requirements['thunder_fia']['severity'] = REQUIREMENT_ERROR;
+        $requirements['thunder_fia']['description'] =
+          t("Configuration objects requiring fb_instant_articles 1.x were found. To update to fb_instant_articles 2.x required by thunder_fia 2.x, align relevant view_mode configuration and remove the <em>fiafields</em> row plugin from following configuration: %relevant_config.<br>You could also choose to run possibly insecure code by requiring thunder_fia 1.x and therefore staying on fb_instant_articles 1.x.", ['%relevant_config' => implode(', ', array_values($relevant_config))]);
+      }
+    }
+  }
 
   if ($phase === 'install') {
     $module_handler = \Drupal::moduleHandler();
