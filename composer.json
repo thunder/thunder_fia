@@ -32,7 +32,7 @@
     "extra": {
         "patches": {
             "drupal/fb_instant_articles": {
-                "Issue #3085768: Enable serialization module on update": "https://www.drupal.org/files/issues/2019-10-04/3085768.patch",
+                "Issue #3085768: Enable serialization module on update": "https://www.drupal.org/files/issues/2019-10-24/3085768-4.patch",
                 "Issue #3087768: Missing config schema for rendered entity field formatter": "https://www.drupal.org/files/issues/2019-10-14/3087768.patch"
             }
         }
